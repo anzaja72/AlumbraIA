@@ -22,9 +22,9 @@ interface AnalysisResultsProps {
 }
 
 const getRiskPresentation = (score: number) => {
-  if (score <= 3) return { label: "Low Risk", color: "text-green-600 dark:text-green-500", Icon: ShieldCheck, progressColor: "bg-green-500" };
-  if (score <= 7) return { label: "Medium Risk", color: "text-yellow-600 dark:text-yellow-500", Icon: ShieldAlert, progressColor: "bg-yellow-500" };
-  return { label: "High Risk", color: "text-red-600 dark:text-red-500", Icon: ShieldX, progressColor: "bg-red-500" };
+  if (score <= 3) return { label: "Low Risk", color: "text-green-600 dark:text-green-500", Icon: ShieldCheck, progressIndicatorClass: "bg-green-500" };
+  if (score <= 7) return { label: "Medium Risk", color: "text-yellow-600 dark:text-yellow-500", Icon: ShieldAlert, progressIndicatorClass: "bg-yellow-500" };
+  return { label: "High Risk", color: "text-red-600 dark:text-red-500", Icon: ShieldX, progressIndicatorClass: "bg-red-500" };
 };
 
 
@@ -49,7 +49,11 @@ export default function AnalysisResults({ analysis }: AnalysisResultsProps) {
               {riskAssessment.riskScore}/10 - {riskPresentation.label}
             </span>
           </div>
-          <Progress value={riskAssessment.riskScore * 10} className={`h-3 [&>div]:${riskPresentation.progressColor}`} />
+          <Progress 
+            value={riskAssessment.riskScore * 10} 
+            className="h-3" 
+            indicatorClassName={riskPresentation.progressIndicatorClass} 
+          />
           <div>
             <h4 className="font-semibold text-foreground">Summary:</h4>
             <p className="text-muted-foreground">{riskAssessment.riskSummary}</p>

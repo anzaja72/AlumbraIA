@@ -16,6 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 const FormSchema = z.object({
   conversationText: z.string().min(10, {
     message: 'Conversation text must be at least 10 characters.',
+  }).max(10000, { // Adding a max length to prevent overly long inputs
+    message: 'Conversation text must be at most 10,000 characters.'
   }),
 });
 
