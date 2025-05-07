@@ -3,9 +3,8 @@
 
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card"; // CardDescription, CardTitle removed as not used in final JSX
-// import Image from 'next/image'; // Image component is not used in the final JSX
-import { AlertTriangle, Frown } from 'lucide-react'; // Users, Home, HeartHandshake, Siren removed as not used in final JSX
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { AlertTriangle, Frown } from 'lucide-react';
 import AnimatedShinyText from '@/components/ui/animated-shiny-text';
 import { cn } from "@/lib/utils";
 
@@ -21,7 +20,7 @@ function HeroSection1() {
               <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none" style={{color: '#e7d6f1'}}>
                 <AnimatedShinyText
                   className={cn(
-                    `inline animate-gradient bg-gradient-to-r from-[#00008B]/50 via-[#00008B] to-[#00008B]/50 bg-[length:var(--shimmer-width)_100%] bg-clip-text text-transparent`
+                    `inline animate-gradient bg-gradient-to-r from-primary via-yellow-300 to-primary bg-[length:var(--shimmer-width)_100%] bg-clip-text text-transparent`
                   )}
                 >
                     Alumbra:
@@ -34,7 +33,7 @@ function HeroSection1() {
               </p>
             </div>
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
-              <Link href="/analyze" passHref> {/* Changed href to /analyze */}
+              <Link href="/analyze" passHref>
                 <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
                   Comenzar Análisis
                 </Button>
@@ -86,8 +85,6 @@ export default function WelcomePage() {
   return (
     <main className="flex min-h-screen flex-col items-center bg-background">
       <HeroSection1 />
-
-      {/* Features Section REMOVED as per user's provided code */}
 
        <footer className="w-full py-6 bg-background border-t">
           <div className="container px-4 md:px-6 text-center text-muted-foreground text-sm">
