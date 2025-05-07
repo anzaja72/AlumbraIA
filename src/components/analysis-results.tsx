@@ -22,9 +22,10 @@ interface AnalysisResultsProps {
 }
 
 const getRiskPresentation = (score: number) => {
-  if (score <= 3) return { label: "Low Risk", color: "text-green-600 dark:text-green-500", Icon: ShieldCheck, progressIndicatorClass: "bg-green-500" };
-  if (score <= 7) return { label: "Medium Risk", color: "text-yellow-600 dark:text-yellow-500", Icon: ShieldAlert, progressIndicatorClass: "bg-yellow-500" };
-  return { label: "High Risk", color: "text-red-600 dark:text-red-500", Icon: ShieldX, progressIndicatorClass: "bg-red-500" };
+  // Using text-destructive for high/medium risk as per design, and a neutral/positive for low.
+  if (score <= 3) return { label: "Riesgo Bajo", color: "text-green-500 dark:text-green-400", Icon: ShieldCheck, progressIndicatorClass: "bg-green-500" }; // Keep green for low risk
+  if (score <= 7) return { label: "Riesgo Medio", color: "text-yellow-500 dark:text-yellow-400", Icon: ShieldAlert, progressIndicatorClass: "bg-yellow-500" }; // Keep yellow for medium
+  return { label: "Riesgo Alto", color: "text-destructive", Icon: ShieldX, progressIndicatorClass: "bg-destructive" };
 };
 
 
@@ -34,13 +35,13 @@ export default function AnalysisResults({ analysis }: AnalysisResultsProps) {
 
   return (
     <div className="space-y-6 w-full">
-      <Card className="shadow-lg">
+      <Card className="shadow-lg bg-card text-card-foreground">
         <CardHeader>
-          <CardTitle className="flex items-center text-2xl">
+          <CardTitle className="flex items-center text-2xl text-card-foreground">
             <Activity className="mr-3 h-7 w-7 text-primary" />
-            Risk Assessment
+            Evaluación de Riesgo
           </CardTitle>
-          <CardDescription>Overall risk level identified in the conversation.</CardDescription>
+          <CardDescription className="text-muted-foreground">Nivel de riesgo general identificado en la conversación.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center space-x-3">
@@ -51,55 +52,55 @@ export default function AnalysisResults({ analysis }: AnalysisResultsProps) {
           </div>
           <Progress 
             value={riskAssessment.riskScore * 10} 
-            className="h-3" 
+            className="h-3 bg-muted" 
             indicatorClassName={riskPresentation.progressIndicatorClass} 
           />
           <div>
-            <h4 className="font-semibold text-foreground">Summary:</h4>
+            <h4 className="font-semibold text-card-foreground">Resumen:</h4>
             <p className="text-muted-foreground">{riskAssessment.riskSummary}</p>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="shadow-lg">
+      <Card className="shadow-lg bg-card text-card-foreground">
         <CardHeader>
-          <CardTitle className="flex items-center text-2xl">
+          <CardTitle className="flex items-center text-2xl text-card-foreground">
             <ListChecks className="mr-3 h-7 w-7 text-primary" />
-            Detected Categories
+            Categorías Detectadas
           </CardTitle>
-          <CardDescription>Identified categories of potential concern.</CardDescription>
+          <CardDescription className="text-muted-foreground">Categorías de posible preocupación identificadas.</CardDescription>
         </CardHeader>
         <CardContent>
           {detectedCategories.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {detectedCategories.map((category, index) => (
-                <Badge key={index} variant="secondary" className="text-sm px-3 py-1">
+                <Badge key={index} variant="secondary" className="text-sm px-3 py-1 bg-secondary text-secondary-foreground">
                   <Tags className="mr-1.5 h-4 w-4" />
                   {category}
                 </Badge>
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">No specific categories detected.</p>
+            <p className="text-muted-foreground">No se detectaron categorías específicas.</p>
           )}
         </CardContent>
       </Card>
 
-      <Card className="shadow-lg">
+      <Card className="shadow-lg bg-card text-card-foreground">
         <CardHeader>
-          <CardTitle className="flex items-center text-2xl">
+          <CardTitle className="flex items-center text-2xl text-card-foreground">
             <MessageSquareQuote className="mr-3 h-7 w-7 text-primary" />
-            Relevant Examples
+            Ejemplos Relevantes
           </CardTitle>
-          <CardDescription>Specific text excerpts illustrating detected categories.</CardDescription>
+          <CardDescription className="text-muted-foreground">Fragmentos de texto específicos que ilustran las categorías detectadas.</CardDescription>
         </CardHeader>
         <CardContent>
           {relevantExamples.length > 0 ? (
             <Accordion type="single" collapsible className="w-full">
               {relevantExamples.map((example, index) => (
-                <AccordionItem value={`item-${index}`} key={index}>
-                  <AccordionTrigger className="text-left hover:no-underline">
-                    Example {index + 1}
+                <AccordionItem value={`item-${index}`} key={index} className="border-border">
+                  <AccordionTrigger className="text-left hover:no-underline text-card-foreground">
+                    Ejemplo {index + 1}
                   </AccordionTrigger>
                   <AccordionContent>
                     <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground">
@@ -110,18 +111,18 @@ export default function AnalysisResults({ analysis }: AnalysisResultsProps) {
               ))}
             </Accordion>
           ) : (
-            <p className="text-muted-foreground">No specific examples highlighted by the analysis.</p>
+            <p className="text-muted-foreground">No hay ejemplos específicos destacados por el análisis.</p>
           )}
         </CardContent>
       </Card>
 
-      <Card className="shadow-lg">
+      <Card className="shadow-lg bg-card text-card-foreground">
         <CardHeader>
-          <CardTitle className="flex items-center text-2xl">
+          <CardTitle className="flex items-center text-2xl text-card-foreground">
             <ClipboardCheck className="mr-3 h-7 w-7 text-primary" />
-            Recommendations
+            Recomendaciones
           </CardTitle>
-          <CardDescription>Tailored suggestions based on the analysis.</CardDescription>
+          <CardDescription className="text-muted-foreground">Sugerencias personalizadas basadas en el análisis.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           {recommendations.split('\n').map((rec, index) => (

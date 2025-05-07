@@ -15,9 +15,9 @@ import { useToast } from '@/hooks/use-toast';
 
 const FormSchema = z.object({
   conversationText: z.string().min(10, {
-    message: 'Conversation text must be at least 10 characters.',
-  }).max(10000, { // Adding a max length to prevent overly long inputs
-    message: 'Conversation text must be at most 10,000 characters.'
+    message: 'El texto de la conversación debe tener al menos 10 caracteres.',
+  }).max(10000, {
+    message: 'El texto de la conversación debe tener como máximo 10,000 caracteres.'
   }),
 });
 
@@ -52,14 +52,14 @@ export default function ConversationInputForm({
       onAnalysisError(result.error);
       toast({
         variant: "destructive",
-        title: "Analysis Failed",
+        title: "Análisis Fallido",
         description: result.error,
       });
     } else if (result.data) {
       onAnalysisComplete(result.data);
       toast({
-        title: "Analysis Complete",
-        description: "Conversation insights are ready.",
+        title: "Análisis Completo",
+        description: "Las percepciones de la conversación están listas.",
       });
       form.reset(); // Clear form on successful submission
     }
@@ -74,15 +74,15 @@ export default function ConversationInputForm({
           name="conversationText"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="conversationText" className="flex items-center text-lg font-semibold">
+              <FormLabel htmlFor="conversationText" className="flex items-center text-lg font-semibold text-card-foreground">
                 <FileText className="mr-2 h-5 w-5 text-primary" />
-                Enter Conversation Text
+                Ingresa el Texto de la Conversación
               </FormLabel>
               <FormControl>
                 <Textarea
                   id="conversationText"
-                  placeholder="Paste the conversation you want to analyze here..."
-                  className="min-h-[150px] md:min-h-[200px] resize-y"
+                  placeholder="Pega aquí la conversación que quieres analizar..."
+                  className="min-h-[150px] md:min-h-[200px] resize-y bg-background text-foreground placeholder:text-muted-foreground"
                   {...field}
                   disabled={isSubmitting}
                 />
@@ -91,9 +91,9 @@ export default function ConversationInputForm({
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full md:w-auto" disabled={isSubmitting}>
+        <Button type="submit" className="w-full md:w-auto bg-primary text-primary-foreground hover:bg-primary/90" disabled={isSubmitting}>
           <Sparkles className="mr-2 h-4 w-4" />
-          {isSubmitting ? 'Analyzing...' : 'Analyze Conversation'}
+          {isSubmitting ? 'Analizando...' : 'Analizar Conversación'}
         </Button>
       </form>
     </Form>
