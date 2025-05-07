@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { AlertTriangle, Frown } from 'lucide-react';
+import { AlertTriangle, Frown, ArrowRight } from 'lucide-react';
 import AnimatedShinyText from '@/components/ui/animated-shiny-text';
 import { cn } from "@/lib/utils";
 
@@ -17,7 +17,7 @@ function HeroSection1() {
           {/* Left Column: Text and Button */}
           <div className="flex flex-col justify-center space-y-4">
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none" style={{color: '#e7d6f1'}}>
+              <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none" style={{color: 'hsl(var(--primary))'}}>
                 <AnimatedShinyText
                   className={cn(
                     `inline animate-gradient bg-gradient-to-r from-primary via-yellow-300 to-primary bg-[length:var(--shimmer-width)_100%] bg-clip-text text-transparent`
@@ -36,6 +36,7 @@ function HeroSection1() {
               <Link href="/analyze" passHref>
                 <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
                   Comenzar Análisis
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </div>
@@ -95,3 +96,4 @@ export default function WelcomePage() {
     </main>
   );
 }
+
