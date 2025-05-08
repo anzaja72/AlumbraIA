@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ReactNode } from 'react';
@@ -15,6 +16,8 @@ import { Sparkles, MessageSquareText, Settings, LifeBuoy } from 'lucide-react';
 import SidebarNav from './sidebar-nav';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
+import AnimatedShinyText from '@/components/ui/animated-shiny-text';
+import { cn } from "@/lib/utils";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -35,7 +38,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <SidebarHeader className="p-4 border-b border-sidebar-border">
           <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-sidebar-primary hover:opacity-80 transition-opacity">
             <Sparkles className="h-7 w-7 text-primary" />
-            <span className="text-2xl font-bold alumbra-animated-text" style={{ color: 'hsl(var(--accent))' }}>Alumbra</span>
+            <AnimatedShinyText
+              className={cn(
+                `text-2xl font-bold inline animate-gradient bg-gradient-to-r from-purple-500 via-yellow-300 to-purple-500 bg-[length:var(--shimmer-width)_100%] bg-clip-text text-transparent`
+              )}
+            >
+              Alumbra
+            </AnimatedShinyText>
           </Link>
           <p className="text-xs text-sidebar-foreground/70 mt-1 group-data-[collapsible=icon]/sidebar-wrapper:hidden">Iluminando tus conversaciones.</p>
         </SidebarHeader>
@@ -68,3 +77,4 @@ export default function AppLayout({ children }: AppLayoutProps) {
     </SidebarProvider>
   );
 }
+
