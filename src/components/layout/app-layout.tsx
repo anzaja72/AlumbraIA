@@ -12,9 +12,9 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
-import { Sparkles, MessageSquareText, LifeBuoy } from 'lucide-react';
+import { MessageSquareText, LifeBuoy } from 'lucide-react';
 import SidebarNav from './sidebar-nav';
-import { Button } from '@/components/ui/button';
+// Removed Button import as it's no longer used in this component after removing the footer button
 import { usePathname } from 'next/navigation';
 import AnimatedShinyText from '@/components/ui/animated-shiny-text';
 import { cn } from "@/lib/utils";
@@ -52,15 +52,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <SidebarNav items={navItems} currentPath={pathname} />
         </SidebarContent>
         <SidebarFooter className="p-4 border-t border-sidebar-border">
-            <Link href="/support" passHref legacyBehavior>
-              <Button asChild variant="ghost" className="w-full justify-start text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent group-data-[collapsible=icon]/sidebar-wrapper:justify-center group-data-[collapsible=icon]/sidebar-wrapper:px-0">
-                <a> {/* Added anchor for Link legacyBehavior */}
-                  <LifeBuoy className="mr-2 h-4 w-4 group-data-[collapsible=icon]/sidebar-wrapper:mr-0" />
-                  <span className="group-data-[collapsible=icon]/sidebar-wrapper:hidden">Soporte</span>
-                </a>
-              </Button>
-            </Link>
-            <p className="text-xs text-sidebar-foreground/60 mt-4 text-center group-data-[collapsible=icon]/sidebar-wrapper:hidden">
+            {/* Removed redundant Support button/link from here */}
+            <p className="text-xs text-sidebar-foreground/60 text-center group-data-[collapsible=icon]/sidebar-wrapper:hidden">
               © {new Date().getFullYear()} Alumbra AI
             </p>
         </SidebarFooter>
@@ -81,3 +74,4 @@ export default function AppLayout({ children }: AppLayoutProps) {
     </SidebarProvider>
   );
 }
+
