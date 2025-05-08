@@ -12,7 +12,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
-import { Sparkles, MessageSquareText, Settings, LifeBuoy } from 'lucide-react';
+import { Sparkles, MessageSquareText, LifeBuoy } from 'lucide-react';
 import SidebarNav from './sidebar-nav';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
@@ -25,6 +25,7 @@ interface AppLayoutProps {
 
 const navItems = [
   { href: '/analyze', label: 'Analizar Conversación', icon: MessageSquareText },
+  { href: '/support', label: 'Soporte', icon: LifeBuoy },
   // { href: '/dashboard', label: 'Dashboard', icon: HomeIcon }, // Example for another page
   // { href: '/settings', label: 'Settings', icon: Settings },
 ];
@@ -37,8 +38,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
         <SidebarHeader className="p-4 border-b border-sidebar-border">
           <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-sidebar-primary hover:opacity-80 transition-opacity">
-            <Sparkles className="h-7 w-7 text-primary" />
-            <AnimatedShinyText
+             <AnimatedShinyText
               className={cn(
                 `text-2xl font-bold inline animate-gradient bg-gradient-to-r from-purple-500 via-yellow-300 to-purple-500 bg-[length:var(--shimmer-width)_100%] bg-clip-text text-transparent`
               )}
@@ -52,10 +52,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <SidebarNav items={navItems} currentPath={pathname} />
         </SidebarContent>
         <SidebarFooter className="p-4 border-t border-sidebar-border">
-            <Button variant="ghost" className="w-full justify-start text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent group-data-[collapsible=icon]/sidebar-wrapper:justify-center group-data-[collapsible=icon]/sidebar-wrapper:px-0">
-                <LifeBuoy className="mr-2 h-4 w-4 group-data-[collapsible=icon]/sidebar-wrapper:mr-0" />
-                <span className="group-data-[collapsible=icon]/sidebar-wrapper:hidden">Soporte</span>
-            </Button>
+            <Link href="/support" passHref legacyBehavior>
+              <Button asChild variant="ghost" className="w-full justify-start text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent group-data-[collapsible=icon]/sidebar-wrapper:justify-center group-data-[collapsible=icon]/sidebar-wrapper:px-0">
+                <a> {/* Added anchor for Link legacyBehavior */}
+                  <LifeBuoy className="mr-2 h-4 w-4 group-data-[collapsible=icon]/sidebar-wrapper:mr-0" />
+                  <span className="group-data-[collapsible=icon]/sidebar-wrapper:hidden">Soporte</span>
+                </a>
+              </Button>
+            </Link>
             <p className="text-xs text-sidebar-foreground/60 mt-4 text-center group-data-[collapsible=icon]/sidebar-wrapper:hidden">
               © {new Date().getFullYear()} Alumbra AI
             </p>
@@ -77,4 +81,3 @@ export default function AppLayout({ children }: AppLayoutProps) {
     </SidebarProvider>
   );
 }
-
