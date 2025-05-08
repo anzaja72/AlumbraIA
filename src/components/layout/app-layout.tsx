@@ -12,12 +12,17 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
-import { MessageSquareText, LifeBuoy } from 'lucide-react';
+import { MessageSquareText, LifeBuoy, HomeIcon } from 'lucide-react'; // Added HomeIcon
 import SidebarNav from './sidebar-nav';
-// Removed Button import as it's no longer used in this component after removing the footer button
 import { usePathname } from 'next/navigation';
 import AnimatedShinyText from '@/components/ui/animated-shiny-text';
 import { cn } from "@/lib/utils";
+import { Button } from '@/components/ui/button'; // Added Button for Home icon
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"; // Added Tooltip components
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -26,8 +31,6 @@ interface AppLayoutProps {
 const navItems = [
   { href: '/analyze', label: 'Analizar Conversación', icon: MessageSquareText },
   { href: '/support', label: 'Soporte', icon: LifeBuoy },
-  // { href: '/dashboard', label: 'Dashboard', icon: HomeIcon }, // Example for another page
-  // { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export default function AppLayout({ children }: AppLayoutProps) {
@@ -37,22 +40,43 @@ export default function AppLayout({ children }: AppLayoutProps) {
     <SidebarProvider defaultOpen>
       <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
         <SidebarHeader className="p-4 border-b border-sidebar-border">
-          <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-sidebar-primary hover:opacity-80 transition-opacity">
-             <AnimatedShinyText
-              className={cn(
-                `text-2xl font-bold inline animate-gradient bg-gradient-to-r from-purple-500 via-yellow-300 to-purple-500 bg-[length:var(--shimmer-width)_100%] bg-clip-text text-transparent`
-              )}
-            >
-              Alumbra
-            </AnimatedShinyText>
-          </Link>
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-sidebar-primary hover:opacity-80 transition-opacity">
+               <AnimatedShinyText
+                className={cn(
+                  `text-2xl font-bold inline animate-gradient bg-gradient-to-r from-purple-500 via-yellow-300 to-purple-500 bg-[length:var(--shimmer-width)_100%] bg-clip-text text-transparent`
+                )}
+              >
+                Alumbra
+              </AnimatedShinyText>
+            </Link>
+            {/* Home Button - only visible when sidebar is not in icon-only mode */}
+            <div className="group-data-[collapsible=icon]/sidebar-wrapper:hidden">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link href="/" passHref>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-sidebar-foreground hover:bg-sidebar-accent"
+                      aria-label="Ir a Inicio"
+                    >
+                      <HomeIcon className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right" align="center" sideOffset={8}>
+                  Ir a Inicio
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
           <p className="text-xs text-sidebar-foreground/70 mt-1 group-data-[collapsible=icon]/sidebar-wrapper:hidden">Iluminando tus conversaciones.</p>
         </SidebarHeader>
         <SidebarContent className="p-2">
           <SidebarNav items={navItems} currentPath={pathname} />
         </SidebarContent>
         <SidebarFooter className="p-4 border-t border-sidebar-border">
-            {/* Removed redundant Support button/link from here */}
             <p className="text-xs text-sidebar-foreground/60 text-center group-data-[collapsible=icon]/sidebar-wrapper:hidden">
               © {new Date().getFullYear()} Alumbra AI
             </p>
@@ -74,4 +98,3 @@ export default function AppLayout({ children }: AppLayoutProps) {
     </SidebarProvider>
   );
 }
-
