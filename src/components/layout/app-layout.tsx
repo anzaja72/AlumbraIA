@@ -12,17 +12,18 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
-import { MessageSquareText, LifeBuoy, HomeIcon } from 'lucide-react'; // Added HomeIcon
+import { MessageSquareText, LifeBuoy, ArrowLeft } from 'lucide-react'; // Changed HomeIcon to ArrowLeft
 import SidebarNav from './sidebar-nav';
 import { usePathname } from 'next/navigation';
 import AnimatedShinyText from '@/components/ui/animated-shiny-text';
 import { cn } from "@/lib/utils";
-import { Button } from '@/components/ui/button'; // Added Button for Home icon
+import { Button } from '@/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"; // Added Tooltip components
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -40,8 +41,32 @@ export default function AppLayout({ children }: AppLayoutProps) {
     <SidebarProvider defaultOpen>
       <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
         <SidebarHeader className="p-4 border-b border-sidebar-border">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-sidebar-primary hover:opacity-80 transition-opacity">
+          <div className="flex items-center gap-3"> {/* Adjusted gap, removed justify-between */}
+            {/* Back to Home Button - only visible when sidebar is not in icon-only mode */}
+            <div className="group-data-[collapsible=icon]/sidebar-wrapper:hidden">
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href="/" passHref>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-sidebar-foreground hover:bg-sidebar-accent"
+                        aria-label="Volver a Inicio"
+                      >
+                        <ArrowLeft className="h-5 w-5" /> {/* Changed Icon to ArrowLeft */}
+                      </Button>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" align="center" sideOffset={8}>
+                    Volver a Inicio
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            
+            {/* Alumbra Title */}
+            <Link href="/" className="flex items-center text-lg font-semibold text-sidebar-primary hover:opacity-80 transition-opacity">
                <AnimatedShinyText
                 className={cn(
                   `text-2xl font-bold inline animate-gradient bg-gradient-to-r from-purple-500 via-yellow-300 to-purple-500 bg-[length:var(--shimmer-width)_100%] bg-clip-text text-transparent`
@@ -50,28 +75,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 Alumbra
               </AnimatedShinyText>
             </Link>
-            {/* Home Button - only visible when sidebar is not in icon-only mode */}
-            <div className="group-data-[collapsible=icon]/sidebar-wrapper:hidden">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link href="/" passHref>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="text-sidebar-foreground hover:bg-sidebar-accent"
-                      aria-label="Ir a Inicio"
-                    >
-                      <HomeIcon className="h-5 w-5" />
-                    </Button>
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right" align="center" sideOffset={8}>
-                  Ir a Inicio
-                </TooltipContent>
-              </Tooltip>
-            </div>
           </div>
-          <p className="text-xs text-sidebar-foreground/70 mt-1 group-data-[collapsible=icon]/sidebar-wrapper:hidden">Iluminando tus conversaciones.</p>
+          <p className="text-xs text-sidebar-foreground/70 mt-1 group-data-[collapsible=icon]/sidebar-wrapper:hidden text-center">Iluminando tus conversaciones.</p>
         </SidebarHeader>
         <SidebarContent className="p-2">
           <SidebarNav items={navItems} currentPath={pathname} />
