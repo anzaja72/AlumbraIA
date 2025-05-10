@@ -4,24 +4,28 @@
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import type { QuestionnaireData} from '@/lib/schemas';
+import type { QuestionnaireData } from '@/lib/schemas';
 import { QuestionnaireSchema } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { handleQuestionnaireSubmission } from '@/app/actions';
-import { useToast } from '@/hooks/use-toast';
+// Removed: import { handleQuestionnaireSubmission } from '@/app/actions';
+// Removed: import { useToast } from '@/hooks/use-toast';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
+interface QuestionnaireFormProps {
+  onSuccess: (data: QuestionnaireData) => void; // Callback on successful submission
+  isSubmittingPrimary: boolean; // Prop to indicate if primary submission is in progress
+}
 
-export default function QuestionnaireForm() {
-  const router = useRouter();
-  const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+export default function QuestionnaireForm({ onSuccess, isSubmittingPrimary }: QuestionnaireFormProps) {
+  // Removed: const router = useRouter();
+  // Removed: const { toast } = useToast();
+  // State for this form's own submission process, distinct from parent's overall submission state
+  const [isSubmittingInternal, setIsSubmittingInternal] = React.useState(false);
 
   const form = useForm<QuestionnaireData>({
     resolver: zodResolver(QuestionnaireSchema),
@@ -36,25 +40,25 @@ export default function QuestionnaireForm() {
   });
 
   async function onSubmit(data: QuestionnaireData) {
-    setIsSubmitting(true);
-    const result = await handleQuestionnaireSubmission(data);
-    setIsSubmitting(false);
-
-    if (result.success) {
-      toast({
-        title: 'Cuestionario Enviado',
-        description: 'Gracias por completar el cuestionario.',
-      });
-      // Navigate to the analysis page or next step
-      router.push('/analyze');
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Error al Enviar',
-        description: result.error || 'No se pudo enviar el cuestionario. Inténtalo de nuevo.',
-      });
-    }
+    setIsSubmittingInternal(true);
+    // Instead of calling server action directly and navigating,
+    // call the onSuccess prop passed by the parent page.
+    onSuccess(data);
+    // Parent will handle actual submission and then decide to open modal or show error.
+    // setIsSubmittingInternal will be reset by parent or if modal flow is interrupted.
+    // For now, let parent manage the overall submitting state.
+    // If parent needs to signal this form to stop its spinner, it can pass a prop.
+    // Or this form can reset its spinner after calling onSuccess:
+    // setIsSubmittingInternal(false); // Or let parent control this via isSubmittingPrimary
   }
+  
+  // Sync internal submitting state with parent's overall state if needed
+  React.useEffect(() => {
+    if (!isSubmittingPrimary) {
+      setIsSubmittingInternal(false);
+    }
+  }, [isSubmittingPrimary]);
+
 
   const questions = [
     {
@@ -102,6 +106,8 @@ export default function QuestionnaireForm() {
     },
   ];
 
+  const currentSubmittingState = isSubmittingPrimary || isSubmittingInternal;
+
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-2xl bg-card text-card-foreground">
       <CardHeader className="text-center">
@@ -126,7 +132,7 @@ export default function QuestionnaireForm() {
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                         className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-4"
-                        disabled={isSubmitting}
+                        disabled={currentSubmittingState}
                       >
                         {q.options.map((option) => (
                           <FormItem key={option.value} className="flex items-center space-x-2 space-y-0">
@@ -155,7 +161,7 @@ export default function QuestionnaireForm() {
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      disabled={isSubmitting}
+                      disabled={currentSubmittingState}
                       id="acceptedTerms"
                     />
                   </FormControl>
@@ -173,11 +179,11 @@ export default function QuestionnaireForm() {
               )}
             />
 
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isSubmitting}>
-              {isSubmitting ? (
+            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={currentSubmittingState}>
+              {currentSubmittingState ? (
                 <>
                   <Spinner className="mr-2 h-4 w-4" />
-                  Enviando...
+                  Procesando...
                 </>
               ) : (
                 'Continuar'

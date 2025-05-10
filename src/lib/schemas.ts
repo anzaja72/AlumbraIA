@@ -23,3 +23,37 @@ export const QuestionnaireSchema = z.object({
 });
 
 export type QuestionnaireData = z.infer<typeof QuestionnaireSchema>;
+
+export const UserDetailsSchema = z.object({
+  name: z.string().min(1, { message: 'El nombre es requerido.' }).max(50, { message: 'El nombre no puede exceder los 50 caracteres.' }),
+  lastName: z.string().min(1, { message: 'El apellido es requerido.' }).max(50, { message: 'El apellido no puede exceder los 50 caracteres.' }),
+  age: z.preprocess(
+    (val) => {
+      const sVal = String(val).trim();
+      return sVal === "" ? undefined : Number(sVal);
+    },
+    z.coerce.number({ invalid_type_error: 'La edad debe ser un número válido.' })
+      .int({ message: 'La edad debe ser un número entero.' })
+      .min(1, { message: 'La edad debe ser mayor a 0.' })
+      .max(120, { message: 'La edad proporcionada no es válida.' })
+      .optional() // Age is optional overall
+  ),
+  gender: z.enum(['hombre', 'mujer', 'prefiero_no_decirlo'], {
+    required_error: 'Por favor selecciona una opción de género.', // Gender is a required choice
+  }),
+  emergencyEmail: z.preprocess(
+    (val) => {
+      const sVal = String(val).trim();
+      return sVal === "" ? undefined : sVal;
+    },
+    z.string().email({ message: 'Debe ser un correo electrónico válido.' }).optional() // Emergency email is optional
+  ),
+});
+export type UserDetailsData = z.infer<typeof UserDetailsSchema>;
+
+// Schema for data potentially stored in localStorage to pass to analyze page
+export const CombinedDataForAnalysisSchema = z.object({
+  questionnaire: QuestionnaireSchema,
+  userDetails: UserDetailsSchema.optional(), // User details can be optional if user cancels modal
+});
+export type CombinedDataForAnalysis = z.infer<typeof CombinedDataForAnalysisSchema>;
