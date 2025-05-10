@@ -57,3 +57,12 @@ export const CombinedDataForAnalysisSchema = z.object({
   userDetails: UserDetailsSchema.optional(), // User details can be optional if user cancels modal
 });
 export type CombinedDataForAnalysis = z.infer<typeof CombinedDataForAnalysisSchema>;
+
+export const FeedbackSchema = z.object({
+  feedbackText: z.string().min(10, {
+    message: 'El comentario debe tener al menos 10 caracteres.',
+  }).max(2000, {
+    message: 'El comentario debe tener como máximo 2000 caracteres.'
+  }),
+});
+export type FeedbackData = z.infer<typeof FeedbackSchema>;

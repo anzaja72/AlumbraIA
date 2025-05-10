@@ -2,7 +2,7 @@
 'use server';
 
 import { analyzeConversation, type AnalyzeConversationInput, type AnalyzeConversationOutput } from '@/ai/flows/analyze-conversation';
-import type { QuestionnaireData, UserDetailsData } from '@/lib/schemas';
+import type { QuestionnaireData, UserDetailsData, FeedbackData } from '@/lib/schemas'; // Added FeedbackData
 
 interface AnalysisActionResult {
   data?: AnalyzeConversationOutput;
@@ -75,5 +75,66 @@ export async function handleUserDetailsSubmission(data: UserDetailsData): Promis
     console.error("Error submitting user details:", e);
     const errorMessage = e instanceof Error ? e.message : "An unexpected error occurred.";
     return { error: `Failed to submit user details: ${errorMessage}` };
+  }
+}
+
+interface FeedbackActionResult {
+  success?: boolean;
+  error?: string;
+  message?: string;
+}
+
+export async function handleFeedbackSubmission(feedbackData: FeedbackData): Promise<FeedbackActionResult> {
+  const webhookUrl = process.env.MAKE_WEBHOOK_URL;
+
+  if (!webhookUrl) {
+    console.error('MAKE_WEBHOOK_URL is not configured.');
+    return { success: false, error: 'El servicio de envío de comentarios no está configurado correctamente.' };
+  }
+
+  if (!feedbackData.feedbackText || feedbackData.feedbackText.trim() === "") {
+    return { success: false, error: "El comentario no puede estar vacío." };
+  }
+
+  const payload = {
+    to: "alumbraia@gmail.com",
+    subject: "Nuevo Comentario de Alumbra AI",
+    text_body: `Un usuario ha enviado el siguiente comentario:\n\n${feedbackData.feedbackText}`,
+    email_type: "feedback" 
+  };
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const responseBody = await response.text();
+      console.error(`Webhook request failed: ${response.status} ${response.statusText}`, responseBody);
+      return { success: false, error: `No se pudo enviar el comentario (Error: ${response.status}). Por favor, inténtalo de nuevo más tarde.` };
+    }
+    
+    const responseText = await response.text();
+    console.log('Webhook response for feedback:', responseText);
+     // Make.com webhooks often return "Accepted" or a simple success message.
+    if (response.status === 200 && responseText.toLowerCase().includes('accepted')) {
+        return { success: true, message: 'Comentario enviado con éxito. ¡Gracias por tu feedback!' };
+    } else {
+        // Even if not "Accepted", a 200 might be okay for some Make scenarios.
+        // Log it as a warning if the text isn't what's expected, but treat 200 as success.
+        console.warn('Feedback webhook call succeeded with non-standard success response or status.', { status: response.status, body: responseText });
+        return { success: true, message: 'Comentario enviado con éxito. ¡Gracias por tu feedback!' };
+    }
+
+  } catch (e) {
+    console.error("Error sending feedback via webhook:", e);
+    if (e instanceof Error) {
+        return { success: false, error: `Ocurrió un error al enviar tu comentario: ${e.message}` };
+    }
+    return { success: false, error: 'Ocurrió un error inesperado al enviar tu comentario.' };
   }
 }

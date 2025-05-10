@@ -12,7 +12,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
-import { MessageSquareText, LifeBuoy, ArrowLeft, FileQuestion } from 'lucide-react'; 
+import { MessageSquareText, LifeBuoy, ArrowLeft, FileQuestion, MessageCircle } from 'lucide-react'; 
 import SidebarNav from './sidebar-nav';
 import { usePathname } from 'next/navigation';
 import AnimatedShinyText from '@/components/ui/animated-shiny-text';
@@ -32,6 +32,7 @@ interface AppLayoutProps {
 const navItems = [
   { href: '/questionnaire', label: 'Cuestionario', icon: FileQuestion },
   { href: '/analyze', label: 'Analizar Conversación', icon: MessageSquareText },
+  { href: '/feedback', label: 'Enviar Comentarios', icon: MessageCircle },
   { href: '/support', label: 'Soporte', icon: LifeBuoy },
 ];
 
