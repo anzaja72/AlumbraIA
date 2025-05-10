@@ -12,7 +12,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
-import { MessageSquareText, LifeBuoy, ArrowLeft } from 'lucide-react'; // Changed HomeIcon to ArrowLeft
+import { MessageSquareText, LifeBuoy, ArrowLeft, FileQuestion } from 'lucide-react'; 
 import SidebarNav from './sidebar-nav';
 import { usePathname } from 'next/navigation';
 import AnimatedShinyText from '@/components/ui/animated-shiny-text';
@@ -30,6 +30,7 @@ interface AppLayoutProps {
 }
 
 const navItems = [
+  { href: '/questionnaire', label: 'Cuestionario', icon: FileQuestion },
   { href: '/analyze', label: 'Analizar Conversación', icon: MessageSquareText },
   { href: '/support', label: 'Soporte', icon: LifeBuoy },
 ];
@@ -41,9 +42,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
     <SidebarProvider defaultOpen>
       <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
         <SidebarHeader className="p-4 border-b border-sidebar-border">
-          <div className="flex items-center gap-3"> {/* Adjusted gap, removed justify-between */}
-            {/* Back to Home Button - only visible when sidebar is not in icon-only mode */}
-            <div className="group-data-[collapsible=icon]/sidebar-wrapper:hidden">
+        <div className="flex items-center gap-2 md:gap-3">
+            <div className="group-data-[collapsible=icon]/sidebar-wrapper:hidden md:ml-0"> {/* No margin on larger screens */}
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -54,7 +54,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                         className="text-sidebar-foreground hover:bg-sidebar-accent"
                         aria-label="Volver a Inicio"
                       >
-                        <ArrowLeft className="h-5 w-5" /> {/* Changed Icon to ArrowLeft */}
+                        <ArrowLeft className="h-5 w-5" />
                       </Button>
                     </Link>
                   </TooltipTrigger>
@@ -65,16 +65,17 @@ export default function AppLayout({ children }: AppLayoutProps) {
               </TooltipProvider>
             </div>
             
-            {/* Alumbra Title */}
-            <Link href="/" className="flex items-center text-lg font-semibold text-sidebar-primary hover:opacity-80 transition-opacity">
-               <AnimatedShinyText
-                className={cn(
-                  `text-2xl font-bold inline animate-gradient bg-gradient-to-r from-purple-500 via-yellow-300 to-purple-500 bg-[length:var(--shimmer-width)_100%] bg-clip-text text-transparent`
-                )}
-              >
-                Alumbra
-              </AnimatedShinyText>
-            </Link>
+            <div className="flex-grow text-center md:text-left md:flex-none"> {/* Centered on mobile */}
+                <Link href="/" className="inline-block text-lg font-semibold text-sidebar-primary hover:opacity-80 transition-opacity">
+                <AnimatedShinyText
+                    className={cn(
+                    `text-2xl md:text-3xl font-bold inline animate-gradient bg-gradient-to-r from-purple-500 via-yellow-300 to-purple-500 bg-[length:var(--shimmer-width)_100%] bg-clip-text text-transparent` // Larger on mobile
+                    )}
+                >
+                    Alumbra
+                </AnimatedShinyText>
+                </Link>
+            </div>
           </div>
           <p className="text-xs text-sidebar-foreground/70 mt-1 group-data-[collapsible=icon]/sidebar-wrapper:hidden text-center">Iluminando tus conversaciones.</p>
         </SidebarHeader>

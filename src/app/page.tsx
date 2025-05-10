@@ -17,7 +17,7 @@ function HeroSection1() {
           {/* Left Column: Text and Button */}
           <div className="flex flex-col justify-center space-y-4">
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none" style={{color: '#e7d6f1'}}>
+              <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
                 <AnimatedShinyText
                   className={cn(
                     `inline animate-gradient bg-gradient-to-r from-purple-500 via-yellow-300 to-purple-500 bg-[length:var(--shimmer-width)_100%] bg-clip-text text-transparent`
@@ -26,7 +26,7 @@ function HeroSection1() {
                     Alumbra:
                 </AnimatedShinyText>
                  <br />
-                 <span> {/* Removed text-foreground class */}
+                 <span style={{color: '#e7d6f1'}}>
                    Ponle luz a tus palabras, claridad a tus vínculos
                  </span>
               </h1>
@@ -35,8 +35,11 @@ function HeroSection1() {
               </p>
             </div>
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
-              <Link href="/analyze" passHref>
-                <Button size="lg" className="bg-primary hover:bg-primary/80 text-primary-foreground shadow-[0_4px_14px_0_rgb(0,0,0,10%)] hover:shadow-[0_6px_20px_0_rgb(0,0,0,20%)] transition-all duration-300 ease-out hover:scale-105 active:scale-95">
+              <Link href="/questionnaire" passHref>
+                <Button 
+                  size="lg" 
+                  className="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white shadow-[0_4px_14px_0_rgb(0,0,0,10%)] hover:shadow-[0_6px_20px_0_rgb(0,0,0,20%)] transition-all duration-300 ease-out hover:scale-105 active:scale-95 group"
+                >
                   Comenzar Análisis
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
                 </Button>
