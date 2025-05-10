@@ -1,4 +1,3 @@
-
 {
   "name": "alumbra-backend",
   "version": "1.0.0",
@@ -23,15 +22,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "helmet": "^7.0.0",  
-    "morgan": "^1.10.0"
-    // Add other dependencies like:
-    // "mongoose": "^7.0.0", (for MongoDB)
-    // "jsonwebtoken": "^9.0.0", (for auth)
-    // "bcryptjs": "^2.4.3", (for password hashing)
-    // "joi": "^17.9.1", (for validation)
-    // "@genkit-ai/googleai": "latest", (if using Genkit here)
-    // "genkit": "latest"
+    "helmet": "^7.0.0",
+    "morgan": "^1.10.0",
+    "node-fetch": "^2.7.0"
   },
   "devDependencies": {
     "eslint": "^8.30.0",

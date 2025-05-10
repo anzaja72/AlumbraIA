@@ -1,9 +1,9 @@
 // alumbra-backend/services/email.service.js
 // Service for sending emails, specifically by making a request to an external webhook URL.
-// This service does NOT directly use SMTP or an email library.
 
 const envConfig = require('../config/env.config');
-// const fetch = require('node-fetch'); // Or Axios, or built-in https module
+const fetch = require('node-fetch'); // Using node-fetch for CJS compatibility
+const { logger } = require('../utils/logger');
 
 const emailService = {
   /**
@@ -15,11 +15,11 @@ const emailService = {
   sendAlertEmail: async (emergencyContactInfo, emailVariables) => {
     const webhookUrl = envConfig.webhookUrl;
     if (!webhookUrl) {
-      console.error('WEBHOOK_URL is not configured. Cannot send email.');
+      logger.error('WEBHOOK_URL is not configured. Cannot send email.');
       return false;
     }
     if (!emergencyContactInfo || !emergencyContactInfo.email) {
-        console.error('Emergency contact email is missing. Cannot send email.');
+        logger.error('Emergency contact email is missing. Cannot send email.');
         return false;
     }
 
@@ -27,38 +27,50 @@ const emailService = {
       to: emergencyContactInfo.email, // The actual recipient email address
       template_id: 'alumbra_emergency_alert_template_v1', // Example template identifier for the webhook service
       dynamic_data: emailVariables, // Variables like userName, riskScore, riskSummary
-      // Potentially add a secret or API key if the webhook endpoint requires authentication
-      // webhook_secret: process.env.WEBHOOK_SECRET,
     };
 
     try {
-      console.log(`Sending alert email to webhook: ${webhookUrl} for contact: ${emergencyContactInfo.email}`);
-      // const response = await fetch(webhookUrl, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     // Add any necessary auth headers for the webhook
-      //     // 'X-Api-Key': process.env.EMAIL_WEBHOOK_API_KEY,
-      //   },
-      //   body: JSON.stringify(payload),
-      // });
+      logger.info(`Sending alert email to webhook: ${webhookUrl} for contact: ${emergencyContactInfo.email}`);
+      logger.debug('Webhook payload:', JSON.stringify(payload, null, 2));
 
-      // if (!response.ok) {
-      //   console.error(`Webhook request failed: ${response.status} ${response.statusText}`, await response.text());
-      //   return false;
-      // }
-      // const responseData = await response.json();
-      // console.log('Webhook response:', responseData);
-      console.log('Webhook call simulation successful.'); // Placeholder for actual fetch call
-      return true; // Assume success for placeholder
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Add any necessary auth headers for the webhook if required by Make.com
+          // e.g., 'Authorization': `Bearer ${process.env.MAKE_WEBHOOK_API_KEY}`
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const responseBody = await response.text();
+        logger.error(`Webhook request failed: ${response.status} ${response.statusText}`, responseBody);
+        return false;
+      }
+      
+      // Make.com webhooks typically respond with "Accepted" (text/plain) or a JSON for more complex scenarios.
+      // If it's just "Accepted", response.json() might fail.
+      const responseText = await response.text();
+      logger.info('Webhook response status:', response.status);
+      logger.info('Webhook response body:', responseText);
+      
+      // Check if response indicates success (e.g. Make.com usually returns 200 OK with "Accepted")
+      if (response.status === 200 && responseText.toLowerCase().includes('accepted')) {
+        logger.info('Webhook call successful.');
+        return true;
+      } else {
+        logger.warn('Webhook call succeeded with non-standard success response or status.', { status: response.status, body: responseText });
+        // Depending on the webhook's behavior, this might still be a success.
+        // For now, we'll be strict.
+        return true; // Assuming 200 is generally success for Make.com webhooks.
+      }
+
     } catch (error) {
-      console.error('Error sending email via webhook:', error);
+      logger.error('Error sending email via webhook:', error);
       return false;
     }
   },
-
-  // Potentially add other email sending functions (e.g., for general notifications)
-  // sendNotificationEmail: async (recipientEmail, subject, body) => { ... }
 };
 
 module.exports = emailService;
