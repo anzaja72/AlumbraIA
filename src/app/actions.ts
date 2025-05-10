@@ -1,8 +1,10 @@
 
 'use server';
 
+import fs from 'fs/promises';
+import path from 'path';
 import { analyzeConversation, type AnalyzeConversationInput, type AnalyzeConversationOutput } from '@/ai/flows/analyze-conversation';
-import type { QuestionnaireData, UserDetailsData, FeedbackData } from '@/lib/schemas'; // Added FeedbackData
+import type { QuestionnaireData, UserDetailsData, FeedbackData } from '@/lib/schemas';
 
 interface AnalysisActionResult {
   data?: AnalyzeConversationOutput;
@@ -84,57 +86,73 @@ interface FeedbackActionResult {
   message?: string;
 }
 
-export async function handleFeedbackSubmission(feedbackData: FeedbackData): Promise<FeedbackActionResult> {
-  const webhookUrl = process.env.MAKE_WEBHOOK_URL;
+const COMMENTS_DIR_NAME = 'Comentarios';
+const MAX_COMMENTS_PER_FILE = 100;
+const METADATA_FILE_NAME = 'metadata.json';
 
-  if (!webhookUrl) {
-    console.error('MAKE_WEBHOOK_URL is not configured.');
-    return { success: false, error: 'El servicio de envío de comentarios no está configurado correctamente.' };
+async function ensureCommentsDir(): Promise<string> {
+  const commentsDirPath = path.join(process.cwd(), COMMENTS_DIR_NAME);
+  try {
+    await fs.mkdir(commentsDirPath, { recursive: true });
+  } catch (error) {
+    // Ignore if directory already exists, otherwise rethrow
+    if (error instanceof Error && 'code' in error && error.code !== 'EEXIST') {
+      console.error('Failed to create comments directory:', error);
+      throw error; 
+    }
   }
+  return commentsDirPath;
+}
 
+async function getMetadata(commentsDirPath: string): Promise<{ lastGlobalCommentId: number }> {
+  const metadataFilePath = path.join(commentsDirPath, METADATA_FILE_NAME);
+  try {
+    const data = await fs.readFile(metadataFilePath, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    // If file not found or error in parsing, initialize
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+      return { lastGlobalCommentId: 0 };
+    }
+    console.warn('Error reading metadata file, re-initializing:', error);
+    return { lastGlobalCommentId: 0 }; // Default if file is corrupted or unreadable
+  }
+}
+
+async function saveMetadata(commentsDirPath: string, metadata: { lastGlobalCommentId: number }): Promise<void> {
+  const metadataFilePath = path.join(commentsDirPath, METADATA_FILE_NAME);
+  await fs.writeFile(metadataFilePath, JSON.stringify(metadata, null, 2));
+}
+
+export async function handleFeedbackSubmission(feedbackData: FeedbackData): Promise<FeedbackActionResult> {
   if (!feedbackData.feedbackText || feedbackData.feedbackText.trim() === "") {
     return { success: false, error: "El comentario no puede estar vacío." };
   }
 
-  const payload = {
-    to: "alumbraia@gmail.com",
-    subject: "Nuevo Comentario de Alumbra AI",
-    text_body: `Un usuario ha enviado el siguiente comentario:\n\n${feedbackData.feedbackText}`,
-    email_type: "feedback" 
-  };
-
   try {
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+    const commentsDirPath = await ensureCommentsDir();
+    const metadata = await getMetadata(commentsDirPath);
 
-    if (!response.ok) {
-      const responseBody = await response.text();
-      console.error(`Webhook request failed: ${response.status} ${response.statusText}`, responseBody);
-      return { success: false, error: `No se pudo enviar el comentario (Error: ${response.status}). Por favor, inténtalo de nuevo más tarde.` };
-    }
+    const newCommentId = metadata.lastGlobalCommentId + 1;
     
-    const responseText = await response.text();
-    console.log('Webhook response for feedback:', responseText);
-     // Make.com webhooks often return "Accepted" or a simple success message.
-    if (response.status === 200 && responseText.toLowerCase().includes('accepted')) {
-        return { success: true, message: 'Comentario enviado con éxito. ¡Gracias por tu feedback!' };
-    } else {
-        // Even if not "Accepted", a 200 might be okay for some Make scenarios.
-        // Log it as a warning if the text isn't what's expected, but treat 200 as success.
-        console.warn('Feedback webhook call succeeded with non-standard success response or status.', { status: response.status, body: responseText });
-        return { success: true, message: 'Comentario enviado con éxito. ¡Gracias por tu feedback!' };
-    }
+    const fileIndex = Math.floor((newCommentId - 1) / MAX_COMMENTS_PER_FILE);
+    const fileStartId = fileIndex * MAX_COMMENTS_PER_FILE + 1;
+    const fileEndId = (fileIndex + 1) * MAX_COMMENTS_PER_FILE;
+    const fileName = `${fileStartId}-${fileEndId}.txt`;
+    const filePath = path.join(commentsDirPath, fileName);
+
+    const commentEntry = `${newCommentId} - User: ${feedbackData.feedbackText}\n`;
+
+    await fs.appendFile(filePath, commentEntry, 'utf-8');
+    
+    metadata.lastGlobalCommentId = newCommentId;
+    await saveMetadata(commentsDirPath, metadata);
+
+    return { success: true, message: 'Comentario guardado localmente con éxito.' };
 
   } catch (e) {
-    console.error("Error sending feedback via webhook:", e);
-    if (e instanceof Error) {
-        return { success: false, error: `Ocurrió un error al enviar tu comentario: ${e.message}` };
-    }
-    return { success: false, error: 'Ocurrió un error inesperado al enviar tu comentario.' };
+    console.error("Error saving feedback to file:", e);
+    const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error inesperado al guardar tu comentario.';
+    return { success: false, error: `Error al guardar el comentario: ${errorMessage}` };
   }
 }
