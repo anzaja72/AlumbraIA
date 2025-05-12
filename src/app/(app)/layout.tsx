@@ -1,5 +1,10 @@
 import type { ReactNode } from 'react';
 import AppLayout from '@/components/layout/app-layout';
 
-export default function MainAppLayout({ children }: { children: ReactNode }) {
+interface LayoutProps {
+  children: ReactNode;
+}
+
+export default function Layout({ children }: LayoutProps) {
   return <AppLayout>{children}</AppLayout>;
+}
